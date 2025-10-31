@@ -1,6 +1,6 @@
 terraform {
   backend "s3" {
-    bucket = "terraform-github-state-bucket"
+    bucket = "terraform-github-ec2-bucket"
     key    = "ec2/terraform.tfstate"
     region = "ap-south-1"
   }
