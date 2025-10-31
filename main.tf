@@ -4,13 +4,7 @@ terraform {
     key    = "ec2/terraform.tfstate"
     region = "ap-south-1"
   }
-}
 
-provider "aws" {
-  region = "ap-south-1"
-}
-
-terraform {
   required_providers {
     aws = {
       source  = "hashicorp/aws"
@@ -22,7 +16,7 @@ terraform {
 }
 
 provider "aws" {
-  region = var.aws_region
+  region = "ap-south-1"
 }
 
 resource "aws_instance" "my_ec2" {
