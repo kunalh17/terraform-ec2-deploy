@@ -1,9 +1,23 @@
 name: "Terraform EC2 Deploy"
 
 on:
+  workflow_dispatch:       # ✅ Enables manual run from GitHub Actions
+    inputs:
+      instance_type:
+        description: "EC2 instance type"
+        required: false
+        default: "t2.micro"
+      aws_region:
+        description: "AWS Region"
+        required: false
+        default: "ap-south-1"
+      key_name:
+        description: "EC2 Key Pair name"
+        required: false
+        default: "my-keypair"
   push:
     branches:
-      - main
+      - main                # ✅ Also triggers automatically on push
 
 permissions:
   contents: read
@@ -15,7 +29,7 @@ jobs:
     env:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      AWS_REGION: ${{ secrets.AWS_REGION }}
+      AWS_REGION: ${{ github.event.inputs.aws_region || secrets.AWS_REGION }}
 
     steps:
       - name: Checkout repository
@@ -30,7 +44,13 @@ jobs:
         run: terraform init
 
       - name: Terraform Plan
-        run: terraform plan
+        run: terraform plan \
+          -var "instance_type=${{ github.event.inputs.instance_type }}" \
+          -var "region=${{ github.event.inputs.aws_region }}" \
+          -var "key_name=${{ github.event.inputs.key_name }}"
 
       - name: Terraform Apply
-        run: terraform apply -auto-approve
+        run: terraform apply -auto-approve \
+          -var "instance_type=${{ github.event.inputs.instance_type }}" \
+          -var "region=${{ github.event.inputs.aws_region }}" \
+          -var "key_name=${{ github.event.inputs.key_name }}"
