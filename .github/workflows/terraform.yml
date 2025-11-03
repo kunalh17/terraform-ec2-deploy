@@ -1,7 +1,7 @@
 name: "Terraform EC2 Deploy"
 
 on:
-  workflow_dispatch:       # ✅ Enables manual run from GitHub Actions
+  workflow_dispatch:       # Enables manual run
     inputs:
       instance_type:
         description: "EC2 instance type"
@@ -17,7 +17,7 @@ on:
         default: "my-keypair"
   push:
     branches:
-      - main                # ✅ Also triggers automatically on push
+      - main
 
 permissions:
   contents: read
@@ -43,16 +43,16 @@ jobs:
       - name: Terraform Init
         run: terraform init -reconfigure
 
-     - name: Terraform Plan
-            run: |
-              terraform plan \
-                -var "instance_type=${{ github.event.inputs.instance_type }}" \
-                -var "region=${{ github.event.inputs.aws_region }}" \
-                -var "key_name=${{ github.event.inputs.key_name }}"
-    
-          - name: Terraform Apply
-            run: |
-              terraform apply -auto-approve \
-                -var "instance_type=${{ github.event.inputs.instance_type }}" \
-                -var "region=${{ github.event.inputs.aws_region }}" \
-                -var "key_name=${{ github.event.inputs.key_name }}"
+      - name: Terraform Plan
+        run: |
+          terraform plan \
+            -var "instance_type=${{ github.event.inputs.instance_type }}" \
+            -var "region=${{ github.event.inputs.aws_region }}" \
+            -var "key_name=${{ github.event.inputs.key_name }}"
+
+      - name: Terraform Apply
+        run: |
+          terraform apply -auto-approve \
+            -var "instance_type=${{ github.event.inputs.instance_type }}" \
+            -var "region=${{ github.event.inputs.aws_region }}" \
+            -var "key_name=${{ github.event.inputs.key_name }}"
