@@ -4,9 +4,14 @@ on:
   workflow_dispatch:
     inputs:
       environment:
-        description: "Environment (e.g. dev, stage, prod)"
+        description: "Environment (e.g. dev, test, stage, prod)"
         required: true
-        default: "dev"
+        type: choice
+        options:
+          - dev
+          - test
+          - stage
+          - prod
       action:
         description: "Terraform command to run"
         required: true
@@ -15,19 +20,18 @@ on:
           - plan
           - apply
           - destroy
-        default: plan
-      instance_type:
-        description: "EC2 instance type"
-        required: true
-        default: "t2.micro"
-      region:
-        description: "AWS region"
-        required: true
-        default: "ap-south-1"
-      key_name:
-        description: "EC2 Key Pair name"
-        required: false
-        default: ""
+#      instance_type:
+#        description: "EC2 instance type"
+#        required: true
+#        default: "t2.micro"
+#      region:
+#        description: "AWS region"
+#        required: true
+#        default: "ap-south-1"
+#      key_name:
+#        description: "EC2 Key Pair name"
+#        required: false
+#        default: ""
 
 permissions:
   contents: read
