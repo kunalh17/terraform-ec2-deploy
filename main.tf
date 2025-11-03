@@ -21,7 +21,7 @@ provider "aws" {
 
 resource "aws_instance" "my_ec2" {
   ami           = "ami-0d4cbf33677f7d3c5" # Amazon Linux 2 (ap-south-1)
-  instance_type = "t2.micro"
+  instance_type = "T4g.micro"
 
   tags = {
     Name = "Terraform-GitHub-EC2-updated"
