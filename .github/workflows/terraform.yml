@@ -1,23 +1,33 @@
 name: "Terraform EC2 Deploy"
 
 on:
-  workflow_dispatch:       # Enables manual run
+  workflow_dispatch:
     inputs:
+      environment:
+        description: "Environment (e.g. dev, stage, prod)"
+        required: true
+        default: "dev"
+      action:
+        description: "Terraform command to run"
+        required: true
+        type: choice
+        options:
+          - plan
+          - apply
+          - destroy
+        default: plan
       instance_type:
         description: "EC2 instance type"
-        required: false
+        required: true
         default: "t2.micro"
-      aws_region:
-        description: "AWS Region"
-        required: false
+      region:
+        description: "AWS region"
+        required: true
         default: "ap-south-1"
       key_name:
         description: "EC2 Key Pair name"
         required: false
-        default: "my-keypair"
-  push:
-    branches:
-      - main
+        default: ""
 
 permissions:
   contents: read
@@ -29,7 +39,11 @@ jobs:
     env:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      AWS_REGION: ${{ github.event.inputs.aws_region || secrets.AWS_REGION }}
+      AWS_REGION: ${{ secrets.AWS_REGION }}
+      TF_VAR_instance_type: ${{ github.event.inputs.instance_type }}
+      TF_VAR_region: ${{ github.event.inputs.region }}
+      TF_VAR_key_name: ${{ github.event.inputs.key_name }}
+      TF_VAR_environment: ${{ github.event.inputs.environment }}
 
     steps:
       - name: Checkout repository
@@ -44,15 +58,13 @@ jobs:
         run: terraform init -reconfigure
 
       - name: Terraform Plan
-        run: |
-          terraform plan \
-            -var "instance_type=${{ github.event.inputs.instance_type }}" \
-            -var "region=${{ github.event.inputs.aws_region }}" \
-            -var "key_name=${{ github.event.inputs.key_name }}"
+        if: ${{ github.event.inputs.action == 'plan' }}
+        run: terraform plan
 
       - name: Terraform Apply
-        run: |
-          terraform apply -auto-approve \
-            -var "instance_type=${{ github.event.inputs.instance_type }}" \
-            -var "region=${{ github.event.inputs.aws_region }}" \
-            -var "key_name=${{ github.event.inputs.key_name }}"
+        if: ${{ github.event.inputs.action == 'apply' }}
+        run: terraform apply -auto-approve
+
+      - name: Terraform Destroy
+        if: ${{ github.event.inputs.action == 'destroy' }}
+        run: terraform destroy -auto-approve
